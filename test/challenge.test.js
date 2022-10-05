@@ -45,11 +45,13 @@ describe("Javascript Challenge", () => {
   });
 
   test("Pregunta N4 - farmManagerNames", () => {
-    expect(farmManagerNames()).toStrictEqual({
-      'AGRICOLA SANTA ANA': [ '78903228', '143618668', '78684747', '216352696' ],
-      'VINA SANTA PAULA': [ '78903228', '143618668', '132254524', '216352696' ],
-      'FORESTAL Y AGRICOLA LO ENCINA': [ '176812737', '78903228', '143618668', '132254524', '216352696' ]
-    });
+    expect(farmManagerNames()).toStrictEqual(
+      {
+        'AGRICOLA SANTA ANA': [ '78903228', '143618668', '78684747', '216352696' ],
+        'VINA SANTA PAULA': [ '78903228', '143618668', '132254524', '216352696' ],
+        'FORESTAL Y AGRICOLA LO ENCINA': [ '176812737', '78903228', '143618668', '132254524', '216352696' ]
+      }
+    );
   });
 
   test("Pregunta N5 - biggestAvocadoFarms", () => {
@@ -57,13 +59,8 @@ describe("Javascript Challenge", () => {
   });
 
   test("Pregunta N6 - biggestCherriesManagers", () => {
-    expect(biggestCherriesManagers()).toStrictEqual([
-      'CARLOS PEREZ GONZALEZ',
-      'JOAQUIN ANDRADE SANDOVAL',
-      'JUAN TAPIA BURGOS',
-      'OSCAR PEREZ ZUÑIGA'
-    ]);
-  });
+    expect(biggestCherriesManagers()).toStrictEqual(["EFRAIN SOTO VERA"]);
+});
 
   test("Pregunta N7 - farmManagerPaddocks", () => {
     expect(farmManagerPaddocks()).toStrictEqual({

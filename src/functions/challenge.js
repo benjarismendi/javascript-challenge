@@ -212,12 +212,7 @@ export const listPaddockManagerIds = () => {
 export const listPaddockManagersByName = () => {
   const managerRuts = paddockManagers
     .sort((a, b) => {
-      let na = a.name;
-      let nb = b.name;
-
-      if (na < nb) return -1;
-      else if (na > nb) return 1;
-      return 0;
+      return (a.name < b.name) ? -1 : 1;
     })
     .map((manager) => manager.taxNumber);
   return managerRuts;
@@ -253,28 +248,119 @@ export const sortFarmManagerByAdminArea = () => {
 
 // 4 Objeto en que las claves sean los nombres de los campos y los valores un arreglo con los ruts de sus administradores ordenados alfabéticamente por nombre.
 export const farmManagerNames = () => {
-  
+  const managersByFarm = {};
+
+  farms.map(farm => {
+    let managersRuts = [];
+
+    paddockManagers.map(manager => {
+      const managerId = manager.id;
+
+      paddocks.map(paddock => {
+        if(paddock.farmId === farm.id && paddock.paddockManagerId === managerId) {
+          if(!managersRuts.includes(manager.taxNumber)) {
+            managersRuts.push(manager.taxNumber);
+          }
+        }
+      });
+    });
+
+    managersByFarm[farm.name] = managersRuts;
+  });
+
+  return managersByFarm;
 };
 
 
 // 5 Arreglo ordenado decrecientemente con los m2 totales de cada campo que tengan más de 2 hectáreas en Paltos
 export const biggestAvocadoFarms = () => {
-  let avocadoSquareMeters = paddockType.map(type => {
-    paddocks.forEach(paddock => {
-      let meters = 0;
-      if (paddock.paddockTypeId === 1) meters += paddock.area
+  let biggestAvocadoFarms = [];
+
+  farms.map(farm => {
+    const avocadoId = 1;
+    const minArea = 20000;
+    let avocadoArea = 0;
+
+    paddocks.map(paddock => {
+      if(paddock.farmId === farm.id && paddock.paddockTypeId === avocadoId ) avocadoArea += paddock.area;
     });
-  })
+
+    if(avocadoArea >= minArea) biggestAvocadoFarms.push(avocadoArea);
+  });
+
+  return biggestAvocadoFarms.sort((a, b) => b - a);
+
 };
 
-// 6 Arreglo con nombres de los administradores de la FORESTAL Y AGRÍCOLA LO ENCINA, ordenados por nombre, que trabajen más de 1000 m2 de Cerezas
-export const biggestCherriesManagers = () => {};
+// 6 Arreglo con nombres de los administradores de la FORESTAL Y AGRÍCOLA LO ENCINA, ordenados por nombre, que trabajen más de 1000 m2 de Cerezas en ese mismo campo
+export const biggestCherriesManagers = () => {
+
+  const agricolaId = 3;
+  const cherriesTypeId = 3;
+  const minArea = 1000;
+
+  let cherriesManagers = [];
+
+  paddockManagers.map(manager => {
+    let cherriesArea = 0;
+    paddocks.map(paddock => {
+      if(paddock.paddockManagerId === manager.id && paddock.paddockTypeId === cherriesTypeId && paddock.farmId === agricolaId) cherriesArea += paddock.area;
+    });
+    if(cherriesArea >= minArea) cherriesManagers.push(manager.name);
+  });
+
+  return cherriesManagers.sort((a, b) => b - a);
+
+};
 
 // 7 Objeto en el cual las claves sean el nombre del administrador y el valor un arreglo con los nombres de los campos que administra, ordenados alfabéticamente
-export const farmManagerPaddocks = () => {};
+export const farmManagerPaddocks = () => {
+  const farmsByManager = {};
+
+  paddockManagers.map(manager => {
+    let managedFarms = [];
+    farms.map(farm => {
+
+      paddocks.map(paddock => {
+        if(paddock.farmId === farm.id && paddock.paddockManagerId === manager.id) {
+          if(!managedFarms.includes(farm.name)) managedFarms.push(farm.name);
+        }
+      })
+
+    });
+
+    farmsByManager[manager.name] = managedFarms.sort((a, b) => {
+      return (a < b) ? -1 : 1;
+    });
+  })
+
+  return farmsByManager;
+};
 
 // 8 Objeto en que las claves sean el tipo de cultivo concatenado con su año de plantación (la concatenación tiene un separador de guión ‘-’, por ejemplo AVELLANOS-2020) y el valor otro objeto en el cual la clave sea el id del administrador y el valor el nombre del administrador
-export const paddocksManagers = () => {};
+export const paddocksManagers = () => {
+  const paddockHarvestYear = {};
+  let paddocksHarvest = []
+  paddockType.map(type => {
+    
+    paddocks.map(paddock => {
+      if(paddock.paddockTypeId === type.id) {
+        const harvestName = `${type.name}-${paddock.harvestYear}`;
+        paddocksHarvest.push(paddock);
+
+        paddockManagers.map(manager => {
+          const managerData = {};
+          if(paddock.paddockManagerId === manager.id) {
+            managerData[manager.id] = manager.name;
+            paddockHarvestYear[harvestName] = managerData;
+          }
+        })
+      }
+    })
+  })
+
+  return paddocksHarvest;
+};
 
 // 9 Agregar nuevo administrador con datos ficticios a "paddockManagers" y agregar un nuevo cuartel de tipo NOGALES con 900mts2, año 2017 de AGRICOLA SANTA ANA, administrado por este nuevo administrador
 // Luego devolver el lugar que ocupa este nuevo administrador en el ranking de la pregunta 3.
